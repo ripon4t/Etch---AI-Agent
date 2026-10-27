@@ -1,4 +1,5 @@
-I've been building: Semiconductor Etch – AI Agent 🔬 a free AI assistant for plasma etching and semiconductor fabrication.
+**Semiconductor Etch – AI Agent
+**I've been building: Semiconductor Etch – AI Agent 🔬 a free AI assistant for plasma etching and semiconductor fabrication.
 
 It came from my industrial fab experience and the skills I've gained along the way. Engineers and students can use it to troubleshoot etch processes, plan recipes, understand profile, selectivity and sidewall issues, and work through advanced etch challenges.
 
