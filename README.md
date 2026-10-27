@@ -5,7 +5,6 @@ It came from my industrial fab experience and the skills I've gained along the w
 
 Etch is one of the most nuanced steps in semiconductor and photonics fabrication, and good guidance is hard to find, especially when you're troubleshooting a process at 2 a.m. I built this AI agent to help engineers, students, and researchers navigate it.
 
-Try the Agent:
 <a href="https://claude.ai/artifact/XXLnALZn14Fr92xsmnTdvw">Try the Agent</a>
 
 What it covers:
