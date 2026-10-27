@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Semiconductor Etch - AI Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{--bg:#eef1f1;--panel:#fff;--ink:#12201f;--muted:#566766;--line:#d3dcdb;--accent:#0b7a75;--soft:#dcefee;--warn:#a85a00;--warnbg:#fbefdc;--user:#14363a;--uink:#fff;
+--fd:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;--fb:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;--fm:ui-monospace,Menlo,Consolas,monospace;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1515;--panel:#152020;--ink:#e3eeed;--muted:#8fa5a3;--line:#263635;--accent:#4fd1c5;--soft:#12302f;--warn:#f0b257;--warnbg:#2b2213;--user:#1d4a4d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1515;--panel:#152020;--ink:#e3eeed;--muted:#8fa5a3;--line:#263635;--accent:#4fd1c5;--soft:#12302f;--warn:#f0b257;--warnbg:#2b2213;--user:#1d4a4d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--fb);padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header{display:grid;grid-template-columns:1fr 170px;gap:20px;align-items:center}
+h1{font:800 clamp(30px,7vw,46px)/1 var(--fd);margin:0 0 10px;letter-spacing:-.02em}
+.lede{margin:0;color:var(--muted);max-width:60ch}
+.hero svg{width:100%;height:auto;display:block}
+.m{fill:var(--accent)}.s{fill:var(--line)}.p{fill:var(--warn);opacity:.55}
+.modes{display:flex;flex-wrap:wrap;gap:8px}
+.mode{font:600 14px/1 var(--fb);border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:10px 13px;border-radius:999px;cursor:pointer}
+.mode:hover{border-color:var(--accent)}
+.mode[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+:is(button,textarea,summary):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.console{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0}
+.log{padding:18px;display:flex;flex-direction:column;gap:14px;min-height:220px;max-height:64vh;overflow-y:auto}
+.msg{max-width:94%;min-width:0;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--user);color:var(--uink);padding:10px 14px;border-radius:12px 12px 2px 12px;white-space:pre-wrap}
+.msg.user img{display:block;max-width:220px;max-height:160px;border-radius:8px;margin-top:8px}
+.msg.bot h4{font:700 16px/1.3 var(--fd);margin:12px 0 4px}
+.msg.bot p{margin:0 0 8px}.msg.bot ul,.msg.bot ol{margin:0 0 8px;padding-left:22px}
+.msg.bot code{font:14px var(--fm);background:var(--soft);padding:1px 4px;border-radius:3px}
+.note{color:var(--muted);font-size:14px}
+.composer{border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px}
+textarea{width:100%;min-height:90px;resize:vertical;font:16px/1.5 var(--fb);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.row,.attach{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.attach{justify-content:flex-start;gap:10px}
+.btns{display:flex;gap:8px}
+.btn{font:600 15px/1 var(--fb);border-radius:8px;padding:11px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.status{font:13px var(--fm);color:var(--muted)}
+.attach img{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.link{background:none;border:0;padding:0;color:var(--accent);font:600 14px var(--fb);cursor:pointer;text-decoration:underline}
+.unavail,.safety{background:var(--warnbg);border-radius:8px;padding:10px 14px;font-size:15px}
+.safety{border-left:3px solid var(--warn);border-radius:0 8px 8px 0}
+h2{font:800 22px/1.2 var(--fd);margin:0 0 4px}.sub{margin:0 0 12px;color:var(--muted)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:660px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--muted);background:var(--bg)}tr:last-child td{border-bottom:0}td:first-child{font-weight:600}
+.ask{font:600 14px var(--fb);color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+summary{cursor:pointer;font:600 16px var(--fb)}
+details p{margin:8px 0 2px;color:var(--muted);font-size:15px}
+.papers{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}.papers li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.papers .cite{font-weight:600}.papers p{margin:6px 0 0;color:var(--muted);font-size:15px}.papers a{color:var(--accent)}
+.byline{margin:10px 0 0;font-weight:600;max-width:60ch}.about{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.about p{margin:0 0 10px;max-width:68ch}.about p:last-child{margin:0}.about a{color:var(--accent);font-weight:600;margin-right:16px}
+.refs{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15px}.refs a{color:var(--accent)}
+footer{font-size:14px;color:var(--muted)}
+@media (max-width:560px){header{grid-template-columns:1fr}.hero{max-width:150px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body>
+<div class="wrap">
+<header><div>
+<h1>Semiconductor Etch - AI Agent</h1>
+<p class="lede">Choose a chemistry, set a starting recipe, fix a bad profile or read a cross-section SEM. Covers dry, wet and advanced etch across Si, dielectrics, III-V, metals and photonic materials. Answers are ranked root-cause checks you can run at the tool.</p>
+<p class="byline">Created by Ripon Kumar Dey, PhD. I created this AI agent to support others who work with etching, from first-time users to advanced process engineers.</p>
+</div>
+<div class="hero" aria-hidden="true"><svg viewBox="0 0 170 120"><rect class="s" x="0" y="60" width="170" height="60"/><rect class="m" x="0" y="48" width="44" height="12"/><rect class="m" x="126" y="48" width="44" height="12"/><path class="s" d="M44 60V100H126V60Z" fill="var(--bg)"/><path class="p" d="M44 60V100H50V60ZM120 60V100H126V60Z"/><path d="M62 8V40M85 4V40M108 8V40" stroke="var(--accent)" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round" fill="none"/></svg></div></header>
+
+<div class="modes" role="group" aria-label="What do you need help with" id="modes"></div>
+
+<div class="console">
+<div class="log" id="log" aria-live="polite"><div class="msg bot"><p>Tell me the material to etch, the mask, the tool type and the profile you need. If you already have a recipe, include gases, pressure, powers and what went wrong.</p><p class="note">Ranges I give are starting points to tune on your tool, not verified recipes. Do not paste confidential recipes: this page is public.</p></div></div>
+<form class="composer" id="form">
+<div id="unavail" class="unavail" hidden>Live answers need Claude access in this view. The reference below still works.</div>
+<label for="q" class="note" id="hint"></label>
+<textarea id="q"></textarea>
+<div class="attach" id="attachrow" hidden>
+<label class="btn ghost" for="img">Attach an SEM or plot</label>
+<input type="file" id="img" hidden>
+<img id="imgthumb" alt="" hidden><span class="status" id="imgname">Cross-section SEM, OES trace or etch-rate plot. You can paste it too.</span>
+<button type="button" class="link" id="imgclear" hidden>Remove</button>
+</div>
+<div class="row"><span class="status" id="status"></span>
+<div class="btns"><button type="button" class="btn ghost" id="clear">New topic</button><button type="button" class="btn ghost" id="stop" hidden>Stop</button><button type="submit" class="btn" id="send">Ask</button></div></div>
+</form></div>
+
+<div class="safety">Etch gases (Cl₂, BCl₃, HBr, SF₆, HF, CH₄/H₂) are toxic, corrosive, flammable or potent greenhouse gases. Follow your facility’s safety training, interlocks and exhaust rules. The mentor gives process reasoning, not tool-specific settings.</div>
+
+<section><h2>Common etch defects</h2><p class="sub">Choose Ask to send a defect to the mentor with the right framing.</p>
+<div class="tw"><table><thead><tr><th>Symptom</th><th>Likely causes</th><th>First checks</th><th></th></tr></thead><tbody id="defects"></tbody></table></div></section>
+
+<section><h2>Published etch research</h2><p class="sub">Papers and a patent by Ripon Kumar Dey that involve etching. The agent uses them first where they apply and cites them by name. Cite the original paper, not this page.</p><ol class="papers">
+<li><span class="cite">R. K. Dey, H. Ekinci, B. Cui, “Effects of mask material conductivity on lateral undercut etching in silicon nano-pillar fabrication,” <em>J. Vac. Sci. Technol. B</em> 38, 012207 (2020).</span> <a href="https://doi.org/10.1116/1.5123601" target="_blank" rel="noopener">DOI 10.1116/1.5123601</a><p>Oxide masks (Cr₂O₃, Al₂O₃) gave roughly half the lateral undercut of metal masks (Cr, Al) in nonswitching pseudo-Bosch silicon etching with SF₆ and C₄F₈. A metal-assisted plasma etching effect is the proposed cause. Higher bias power also reduced undercut.</p></li>
+<li><span class="cite">F. Aydinoglu, F. Saffih, R. K. Dey, B. Cui, “Chromium oxide as a hard mask material better than metallic chromium,” <em>J. Vac. Sci. Technol. B</em> 35, 06GB01 (2017).</span> <a href="https://doi.org/10.1116/1.4998480" target="_blank" rel="noopener">DOI 10.1116/1.4998480</a><p>Cr₂O₃ is easier to pattern from resist than Cr, and both gave about 100:1 selectivity over silicon in nonswitching pseudo-Bosch ICP-RIE with SF₆ and C₄F₈.</p></li>
+<li><span class="cite">H. Ekinci, R. K. Dey, B. Cui, “Two-step potassium hydroxide etching to enhance aspect ratio in trench fabrication,” <em>J. Vac. Sci. Technol. B</em> 37, 062001 (2019).</span> <a href="https://doi.org/10.1116/1.5123530" target="_blank" rel="noopener">DOI 10.1116/1.5123530</a><p>A thermal oxide protects the trench sidewalls, RIE clears the oxide at the trench bottom, and a second KOH etch follows. This more than doubled the aspect ratio on Si(110) with almost no change in trench width. The highest (110)/(111) etch anisotropy reported was 247, with 50 wt.% KOH at room temperature.</p></li>
+<li><span class="cite">M. Samaan, H. Ekinci, R. K. Dey, X. Zhu, D. Pushin, B. Cui, “Fabrication of high aspect ratio atomic force microscope probes using focused ion beam milled etch mask,” <em>Microelectron. Eng.</em> 267–268, 111909 (2023).</span><p>High aspect ratio AFM probes made with an etch mask that is milled by focused ion beam.</p></li>
+<li><span class="cite">R. K. Dey, M. Khosnegar, “Non-switching etch to fabricate the transmissive and reflective metalens for the manufacturing volume scale,” manuscript in preparation (listed for <em>Nature Communications</em>, 2024).</span><p>Not yet published. The agent treats it as unpublished work and does not quote results from it.</p></li>
+<li><span class="cite">R. K. Dey, J. Shen, B. Cui, “Oxidation sharpening of silicon tips in the atmospheric environment,” <em>J. Vac. Sci. Technol. B</em> 35, 06GC01 (2017).</span> <a href="https://doi.org/10.1116/1.4998561" target="_blank" rel="noopener">DOI 10.1116/1.4998561</a><p>Oxidation-based sharpening of silicon tips carried out in ambient atmosphere.</p></li>
+<li><span class="cite">B. Cui, R. K. Dey, “Method of fabricating nano-scale structures and nano-scale structures fabricated using the method,” US Patent 9,522,821 B2 (issued Dec. 20, 2016).</span><p>A batch method for arrays of high aspect ratio silicon pillars. Low aspect ratio pyramid structures are etched with hard masks in place, so a pillar forms on each pyramid base. Family members listed on the inventor’s site: WO2014169383A1, CA2938783A1, CN105189821B and the Chinese utility model CN204138341U, “Silicon column array on silicon substrate.”</p></li>
+</ol></section>
+
+<section><h2>Further reading</h2><p class="sub">Reviews and papers behind the advanced knowledge in this agent. Check each source for its full context and conditions.</p><ol class="refs">
+<li>G. S. Oehrlein et al., <a href="https://doi.org/10.1116/6.0003579" target="_blank" rel="noopener">Future of plasma etching for microelectronics: Challenges and opportunities</a>, <em>J. Vac. Sci. Technol. B</em> 42, 041501 (2024).</li>
+<li>K. J. Kanarik et al., <a href="https://doi.org/10.1116/1.4913379" target="_blank" rel="noopener">Overview of atomic layer etching in the semiconductor industry</a>, <em>J. Vac. Sci. Technol. A</em> 33, 020802 (2015).</li>
+<li>H. V. Jansen et al., <a href="https://doi.org/10.1088/0960-1317/19/3/033001" target="_blank" rel="noopener">Black silicon method X: a review on high speed and selective plasma etching of silicon with profile control</a>, <em>J. Micromech. Microeng.</em> 19, 033001 (2009).</li>
+<li>M. Schaepkens et al., <a href="https://research.tue.nl/en/publications/study-of-the-sio2-to-si3n4-etch-selectivity-mechanism-in-inductiv/" target="_blank" rel="noopener">Study of the SiO₂-to-Si₃N₄ etch selectivity mechanism in inductively coupled fluorocarbon plasmas</a>, <em>J. Vac. Sci. Technol. A</em> 17, 26 (1999).</li>
+<li><a href="https://www.mdpi.com/2072-666x/12/10/1143" target="_blank" rel="noopener">Comparison between Bosch and STiGer processes for deep silicon etching</a>, <em>Micromachines</em> 12, 1143 (2021).</li>
+<li>F. Aydinoglu, A. Pan, C. Zhu, B. Cui, <a href="https://doi.org/10.1116/1.5122822" target="_blank" rel="noopener">Effect of oxygen plasma cleaning on nonswitching pseudo-Bosch etching of high aspect ratio silicon pillars</a>, <em>J. Vac. Sci. Technol. B</em> 38, 012804 (2020).</li>
+<li>J. S. Parker et al., <a href="https://coldren.ece.ucsb.edu/sites/default/files/publications/parker_high_verticality_inpingaasp_etching.pdf" target="_blank" rel="noopener">High verticality InP/InGaAsP etching in Cl₂/H₂/Ar inductively coupled plasma for photonic integrated circuits</a>.</li>
+<li>S. Ishutkin et al., <a href="https://doi.org/10.3390/mi12121535" target="_blank" rel="noopener">Low-temperature ICP etching of InP/InGaAsP heterostructures in Cl₂-based plasma for integrated optics</a>, <em>Micromachines</em> 12, 1535 (2021).</li>
+<li><a href="https://doi.org/10.1515/nanoph-2022-0676" target="_blank" rel="noopener">Redeposition-free inductively-coupled plasma etching of lithium niobate for integrated photonics</a>, <em>Nanophotonics</em> 12(8), 1601–1611 (2023).</li>
+<li><a href="https://doi.org/10.1116/6.0001862" target="_blank" rel="noopener">High synergy atomic layer etching of AlGaN/GaN with HBr and Ar</a>, <em>J. Vac. Sci. Technol. A</em> 40, 042601 (2022).</li>
+</ol></section>
+
+<section><h2>About the creator</h2><div class="about"><p><strong>I created this AI agent to support others</strong> who etch, whether you are running your first plasma recipe or tuning an advanced process. I hope it saves you time at the tool.</p><p>I’m Ripon Kumar Dey, PhD, a Principal Scientist at Deepera and a nanofabrication specialist with more than 10 years of cleanroom research experience. I earned my PhD at the Waterloo Institute for Nanotechnology, University of Waterloo, and worked there as a research scientist. I later led nanofabrication R&amp;D teams in industry at Metamaterial Inc. and Authentix. My work covers electron beam lithography, nanoimprint lithography, thin-film deposition and etching, for photonics, sensors and displays. I have authored more than 30 peer-reviewed articles and filed more than 8 patents. I am a member of IEEE and the American Vacuum Society, and a Senior Reviewer for <em>Microelectronic Engineering</em>.</p><p><a href="https://ripondey.ca/" target="_blank" rel="noopener">Personal site</a><a href="https://scholar.google.com/citations?user=qPKNAyMAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar profile</a></p></div></section>
+
+<section><h2>What it covers</h2><div id="cover"></div></section>
+<footer>Created by Ripon Kumar Dey, PhD, to support others. AI answers can be wrong. Verify against your tool vendor, process engineers and published literature before running real wafers.</footer>
+</div>
+<script>
+const MODES={
+recipe:{label:"Plan a recipe",hint:"Material, mask, tool type, target depth, profile and selectivity you need.",ph:"e.g. 300 nm deep InP waveguide trench, SiO2 hard mask, ICP-RIE, vertical sidewall over 85°…",task:"The user wants a starting etch recipe. Recommend chemistry, mask, regime (physical, chemical, ion-assisted), starting ranges for pressure, ICP and bias power, temperature and flows, expected selectivity trade-offs, endpoint method and what to measure first."},
+trouble:{label:"Fix a profile or defect",hint:"Describe the profile or defect, the recipe and what changed.",ph:"e.g. Bosch etch, scallops growing and notching at the buried oxide, 10 µm features…",task:"The user has an etch defect. Give ranked root causes, the check that confirms each, and the fix for each, as a root-cause analysis."},
+material:{label:"Material and chemistry",hint:"Name the material stack and what must stay intact.",ph:"e.g. Etch SiN over SiO2 with 20:1 selectivity, or LiNbO3 for photonics…",task:"The user needs chemistry and material guidance: which gases or wet etchants, why, byproduct volatility, selectivity and mask compatibility."},
+advanced:{label:"Advanced etch",hint:"Name the technique: ALE, cryo, DRIE, high aspect ratio, ion beam, pulsed plasma…",ph:"e.g. Atomic layer etch of silicon with minimal damage, or cryogenic etch for smooth sidewalls…",task:"The user asks about an advanced technique (ALE, cryo, Bosch DRIE, HAR, pulsed plasma, ion beam, CAIBE, neutral beam, vapor HF, XeF2, MACE). Explain the mechanism, when to use it, key control knobs, limits and a starting approach."},
+mask:{label:"Mask and pattern transfer",hint:"Resist or hard mask, how it was patterned and what it must survive.",ph:"e.g. ZEP520A EBL pattern into Si, need 400 nm depth, how thick a hard mask…",task:"The user needs mask and pattern-transfer help: mask material, thickness from selectivity, erosion and faceting, resist hardening, linewidth and CD control, and stripping."},
+monitor:{label:"Endpoint, metrology and SPC",hint:"Say what you measure and how the data drifts.",ph:"e.g. Etch rate on monitor wafers drifted 6% over two weeks, Cpk fell below 1.3…",task:"The user asks about monitoring: OES and interferometric endpoint, DC bias and reflected power, etch-rate monitors, CD-SEM, uniformity, SPC rules, chamber seasoning and drift."},
+wet:{label:"Wet etch and clean",hint:"Material, etchant, temperature, and what you need.",ph:"e.g. KOH etch of Si (100) gives rough pyramids, need smooth 54.7° walls…",task:"The user asks about wet etch or clean: etchants, anisotropy, rates, mask compatibility, undercut, roughness, post-etch residue and safety."}
+};
+const DEFECTS=[
+["Undercut or isotropic profile","Too much chemical etching, high pressure, low bias, weak passivation, hot wafer","Lower pressure, raise bias, add passivation gas, check He backside cooling"],
+["Bowing or barrel sidewall","Ion scattering, charging, over-polymerized or thin passivation at the top","Cross-section SEM, adjust passivation ratio and bias, check aspect ratio"],
+["Tapered sidewall","Too much deposition, mask faceting, low ion energy","Reduce passivation gas, raise bias, check mask erosion"],
+["RIE lag (ARDE)","Aspect-ratio-dependent transport of reactants and byproducts","Lower pressure, tune ion energy, pulse or step the recipe, compare trench widths"],
+["Micromasking, grass or black silicon","Sputtered mask or chamber material, polymer residue, contamination","Clean the chamber, change the mask, add O₂ step, check electrode material"],
+["Notching at a dielectric stop layer","Surface charging, ions deflected into the sidewall base","Lower-frequency bias pulsing, reduce overetch, adjust bias at the clearing step"],
+["Rough or striated sidewall","Resist roughness, mask edge roughness, scallops, polymer cycling","Inspect mask edge before etch, reflow or smooth, adjust cycle times, consider cryo"],
+["Trenching or microtrenches","Ions reflecting from sloped sidewalls onto the trench floor","Taper the mask slightly, lower ion energy, check sidewall angle"],
+["Redeposition or fence","Non-volatile byproducts (Au, Pt, Cu, LiNbO₃), re-sputtering","Add Cl₂ or F chemistry where volatile, raise temperature, angle ion-beam etch, wet clean"],
+["Etch rate drift","Chamber wall conditioning, gas flow change, match network drift, mask loading","Seasoning wafers, MFC check, plot DC bias and reflected power over lots"],
+["Low selectivity to mask","High bias, wrong chemistry, thin mask, mask heating","Switch mask material, lower bias, cool the wafer, rebalance gas ratio"],
+["Plasma damage or low device performance","High ion energy, charging, UV exposure, residue","Lower bias, add anneal or wet cleanup, consider ALE or neutral-beam etch"]
+];
+const COVER=[
+["Dry etch regimes","Physical sputter, chemical, ion-assisted RIE and ICP-RIE, CCP, high-density plasmas, pressure, source and bias roles, passivation."],
+["Materials","Si, poly-Si, SiO₂, SiN, SiC, III-V (InP, InGaAs, GaAs, GaN), metals (Al, W, Ti, Cr), polymers and resists, LiNbO₃, glass, diamond, 2D materials."],
+["Advanced methods","Bosch DRIE, cryogenic etch, atomic layer etch, pulsed plasma, high aspect ratio, ion-beam and CAIBE, vapor HF, XeF₂, metal-assisted chemical etch."],
+["Masks and pattern transfer","Resist, SiO₂, SiN, Cr, Ni, Al₂O₃ hard masks, EBL resists, selectivity, thickness, faceting and CD control."],
+["Wet etch and cleaning","KOH and TMAH anisotropy, BOE and HF, piranha, RCA, residue removal, undercut and roughness."],
+["Monitoring and control","OES and interferometric endpoint, etch-rate monitors, CD-SEM, SPC, chamber seasoning and drift, root-cause and 8D."],
+["Advanced and emerging","ALE and synergy testing, cryogenic and pseudo-Bosch etch, pulsed plasma and charging control, HAR dielectric etch, III-V photonic etch, thin-film lithium niobate, and the 2024 plasma etch roadmap."]
+];
+const RULES=`You are Semiconductor Etch - AI Agent, a practical semiconductor etch process assistant for new and advanced users: students, researchers, nanofab users and early-career process engineers. Lead with the answer. Use short Markdown headings (####), numbered or bulleted lists and real units (mTorr, W, sccm, °C, nm/min). Keep answers under about 450 words unless asked for more; advanced questions may use up to about 700 words when the mechanism needs it.
+RULES:
+- Ranges are starting points to tune on the user's tool. Never invent precise literature values, citations or vendor recipes. If unsure, say so and say what to measure.
+- Frame defect questions as root causes ranked by likelihood, a check for each and a fix for each.
+- Mention safety briefly when toxic, corrosive, flammable or high-GWP gases, HF or high temperatures are involved.
+- Be clear that tool-specific settings depend on the machine, chamber condition and fab specs.
+- If a question is outside etch, patterning, thin-film processing or related metrology, say so in one line.
+- Ask at most one clarifying question, only if a missing detail would change the answer. Ask about material, mask, tool type and target profile when absent.
+- If an image is attached: say what it is (SEM cross-section, OES trace, rate plot), read key features with approximate values labelled as read from the image, interpret, suggest the next check. Never invent values you cannot see; if unreadable, say so.
+BUILDER'S PUBLISHED ETCH WORK (the builder is Ripon Kumar Dey, PhD; use these first when relevant, cite by authors, journal, year and DOI, present values as results from those experiments that depend on the tool and conditions, never invent details beyond what is listed, and tell users to cite the original paper, not this tool):
+- Dey, Ekinci, Cui, J. Vac. Sci. Technol. B 38, 012207 (2020), DOI 10.1116/1.5123601: mask material and lateral undercut in silicon nano-pillar etching. Masks made by electron beam lithography and lift-off; silicon etched by nonswitching pseudo-Bosch (SF6 and C4F8 injected together). Undercut under Cr2O3 and Al2O3 masks was roughly half that under Cr or Al masks. Plausible explanation given: metal-assisted plasma etching, where the metal catalyzes the reaction by injecting holes into the silicon in contact. Higher bias power gave less undercut than lower bias, from more and more directional ion bombardment.
+- Aydinoglu, Saffih, Dey, Cui, J. Vac. Sci. Technol. B 35, 06GB01 (2017), DOI 10.1116/1.4998480: Cr2O3 versus Cr hard mask. Cr2O3 is easier to pattern from resist than Cr. In nonswitching pseudo-Bosch ICP-RIE both had the same etch resistance and about 100:1 selectivity over silicon (mask etch rate about 4 nm/min). Example recipe in the paper: 1200 W ICP, 38 sccm C4F8, 22 sccm SF6, 15 C, silicon etched about 390 nm/min. This process gives broadly tunable sidewall taper from positive to negative.
+- Ekinci, Dey, Cui, J. Vac. Sci. Technol. B 37, 062001 (2019), DOI 10.1116/1.5123530: two-step KOH etching of Si(110) trenches. After the first KOH etch, grow thermal oxide, remove the oxide at the trench bottom by RIE, then do a second KOH etch with the sidewalls protected. Aspect ratio more than doubled with trench width almost unchanged. Highest anisotropy (110) to (111) of 247 with 50 wt.% KOH at room temperature.
+- Dey, Shen, Cui, J. Vac. Sci. Technol. B 35, 06GC01 (2017), DOI 10.1116/1.4998561: oxidation sharpening of silicon tips in ambient atmosphere. Only the title is known here; say so if asked for details.
+- Cui and Dey, US Patent 9,522,821 B2 (2016): batch fabrication of high aspect ratio silicon pillar arrays by etching low aspect ratio pyramid structures with hard masks so a pillar forms on each pyramid base. Family members: WO2014169383A1, CA2938783A1, CN105189821B and Chinese utility model CN204138341U (Silicon column array on silicon substrate).
+- Samaan, Ekinci, Dey, Zhu, Pushin, Cui, Microelectronic Engineering 267-268, 111909 (2023): fabrication of high aspect ratio AFM probes using a focused-ion-beam-milled etch mask. Only the title is known here; say so if asked for details.
+- Dey and Khosnegar, manuscript in preparation (listed for Nature Communications, 2024): non-switching etch for transmissive and reflective metalens at manufacturing volume scale. It is unpublished: do not state results, and say it is in preparation.
+ABOUT THE BUILDER: Ripon Kumar Dey, PhD created this agent to support others who work with etching. He is a Principal Scientist at Deepera with more than 10 years of cleanroom research experience (PhD, University of Waterloo; earlier industry roles at Metamaterial Inc. and Authentix). If asked who built it, say this and point to the About section of the page. Do not add credentials or claims beyond these.
+ADVANCED KNOWLEDGE (compiled from published literature, reviews and vendor notes. Numbers are examples from specific papers or tools, not recipes: attribute them as published examples that depend on tool, chamber state and mask, never as guaranteed values):
+PLASMA LEVERS
+- Ion and radical flux are set mostly by ICP source power and pressure; ion energy mostly by RF bias. More bias: more directional, faster, lower selectivity, more mask faceting and damage. More pressure: lower ion directionality and DC bias, more chemical and isotropic etching, more loading. Higher temperature: more byproduct volatility, less passivation, more undercut. Ion heating makes the real surface hotter than the chuck set point.
+- Bias frequency matters for charging: ions follow low-frequency bias (about 100-400 kHz) but not 13.56 MHz. Pulsing source and or bias changes the ion energy distribution, radical-to-ion ratio and charge relief. Dual-frequency CCP, pulsing and low-temperature chucks are common levers in advanced etch.
+SILICON DEEP ETCH
+- Bosch: cycle of polymer deposition (C4F8), bottom-polymer removal by ion bombardment, isotropic SF6 etch. Wide window and production standard, but scallops, chamber polymer buildup and fast gas switching. Pushing the rate roughens walls and raises scallop and undercut.
+- Cryogenic: continuous SF6/O2 at about -100 C. A SiOxFy layer about 10-20 nm thick protects the walls. Smooth walls, no polymer, lower bias so better mask selectivity. Limits: tight temperature control, narrower window, loading sensitivity, mask cracking risk, and the layer desorbs on warm-up.
+- Pseudo-Bosch (non-switching): SF6 and C4F8 together, usually room temperature. Smoother than Bosch, tunable taper, no cryostat; lower rate and narrower window. Published Waterloo example: periodic O2 cleaning (about 10% of the time) raised the Si rate about 55%, from 139 to 216 nm/min, by removing surface fluorocarbon (Aydinoglu, Pan, Zhu, Cui, JVST B 38, 012804, 2020).
+- STiGer: SF6 etch with SiF4/O2 passivation at cryogenic temperature; polymer-free, less chamber cleaning.
+- Notching at insulator stop layers: charging deflects ions into the sidewall base; worse in high-density plasma; notches can reach microns. Fixes: pulsed or low-frequency bias, pulsed ICP during the etch step, less bias and overetch, a low-density finishing etch, endpoint on the stop layer. Grass: polymer or mask debris micromasking. ARDE: slower etch in narrow features (transport limited); lower pressure, adjust passivation, or step the recipe. Bowing: ion scattering or thin top passivation.
+ATOMIC LAYER ETCH (ALE)
+- Cycle: self-limiting surface modification, then removal by low-energy ions or thermal chemistry, with purges. The benefit comes from self-limiting steps, not from exactly one layer per cycle. Gains: uniformity across aspect ratios and wafers, smoothness (surface state resets each cycle), selectivity, low damage. Cost: low rate.
+- Synergy % = (EPC - (A + B)) / EPC x 100, with EPC the etch per cycle and A and B the removal from the modification step alone and the removal step alone. Above about 90% is high synergy, below about 60% low. Test: EPC versus modification dose (should saturate), versus ion energy and dose (window below the sputter threshold), and each half alone.
+- Variants: Si with Cl2 then Ar+; digital etch (oxidize, then wet-remove); thermal isotropic ALE (fluorinate, then ligand exchange); plasma-thermal for metals (Ni reported: N2 plasma forms a nitride, formic acid removes it, gentle Ar+ clears residue, about 1.3 nm/cycle); AlGaN/GaN with HBr and Ar reported above 91% synergy; directional LiNbO3 ALE with HBr/BCl3/Ar then Ar plasma reported by another group; isotropic LN ALE reported to cut roughness of Ar-milled waveguides by about 30%.
+DIELECTRIC AND HIGH ASPECT RATIO ETCH
+- A thin steady-state fluorocarbon film regulates etching; substrate etch rate is inversely related to film thickness. Reported: about 1.5 nm on SiO2, about 1-4 nm on Si3N4, about 2-7 nm on Si, depending on chemistry. Oxygen in SiO2 consumes carbon, so the film stays thin on oxide and thick on Si and SiN: that is the selectivity mechanism.
+- Carbon-rich or hydrofluorocarbon gases (C4F8, C4F6, C5F8, CH2F2 mixes) raise selectivity to Si, SiN and masks. Too much polymer causes etch stop, especially on HAR sidewalls; Ar and O2 additions thin it and have an optimum. High self-bias lowers selectivity as sputtering takes over.
+- 3D NAND and DRAM: aspect ratios beyond 100; issues are ARDE, bowing, twisting, charging and mask selectivity (carbon masks). Levers: multi-frequency CCP, pulsing, and low temperature (physisorbed neutrals stay mobile and reach feature bottoms). Selective isotropic recess of Si3N4 versus SiO2 is a related step. Hydrofluorocarbon phase-down (AIM Act) pushes gas alternatives and abatement.
+III-V AND PHOTONIC ETCH
+- InP and InGaAsP with Cl2: InClx has low volatility, so chuck temperatures of about 150-200 C are common (one Ar/Cl2 study reached InP:SiN selectivity about 12 at 210 C). Too cold: InClx redeposits, micromasking, rough surface. Too hot: InClx leaves too easily and the sidewall undercuts.
+- Additives: N2 passivates sidewalls (Cl2/N2 reported about 140 nm/min with a Ni mask at 120 V DC bias); H2 (Cl2/H2/Ar reported about 89 degree walls, over 7 um deep, selectivity above 20:1 to SiNx or SiO2, with minimal Ar to limit damage); BCl3 improves verticality but roughens; CH4/H2 (with or without Cl2) works at lower temperature but deposits polymer and can leave grass. A 2021 study etched InP/InGaAsP in Cl2/Ar/N2 without preheating and polished the damaged layer in a second step.
+- Photonic crystals: shadowing, ARDE, mask erosion and ion deflection; a vertical SiN or SiO2 mask is essential; sidewall roughness sets scattering loss; waveguides and holes conflict (over-passivated holes taper).
+- GaN and AlGaN: Cl2/BCl3/Ar, ion energy sets damage, HBr/Ar for ALE. GaAs and AlGaAs: BCl3/Cl2/Ar or SiCl4. Al-containing layers oxidize in air, so clean and encapsulate promptly.
+THIN-FILM LITHIUM NIOBATE AND NON-VOLATILE PRODUCTS
+- LiNbO3: F or Cl RIE forms non-volatile Li compounds (LiF) that redeposit, roughen walls and add loss. Pure Ar+ milling is the common route: no LiF but low selectivity (about 1.2:1 to SiO2 in one report) so masks are thick; sidewall angles of 40-80 degrees are typical; LN redeposition is smooth and can be removed by wet cleaning. Redeposition-free Ar ICP regimes exist; mixing F with Ar improves smoothness and angle; proton-exchanged LN reduces LiF. One report: 1500 W ICP, 150 W RF, 40 sccm Ar, 2 mTorr gave 60 degree walls at about 50 nm/min.
+- Au, Pt, Cu, Ni and similar have non-volatile halides: use ion beam etching or milling, tilt the beam against redeposition fences, or use lift-off and damascene.
+WET AND CATALYTIC ETCH
+- Metal-assisted chemical etch (MACE): a noble-metal catalyst injects holes into Si, which oxidizes locally and HF removes it, giving high aspect ratio Si nanostructures without plasma. KOH and TMAH on Si(110) give vertical (111) walls; lateral etching limits aspect ratio.
+CONTROL, DIAGNOSTICS AND DEBUG
+- Endpoint: OES line intensities of reactants or products, laser interferometry, DC bias and reflected-power trends. Watch first-wafer effect, seasoning, wall condition, He backside pressure and clamping, MFC drift and match-network positions.
+- Debug order: (1) chamber state (leak check, clean, seasoning, temperature calibration), (2) mask (edge roughness, thickness, erosion, faceting), (3) recipe knobs one at a time or in a small DOE, (4) metrology (cross-section versus top-down, dependence on feature size and density).
+- The 2024 JVST B roadmap on plasma etching highlights 3D architectures, atomic-scale precision, new materials, sustainability and hybrid physics and machine-learning models, including digital twins of etch chambers.
+HOW TO ANSWER ADVANCED QUESTIONS: give the mechanism first, then the knobs that move it and the expected direction of change, a one-factor or small DOE plan, the metrology to confirm, and the failure modes to watch.
+KNOWLEDGE (general process knowledge, use with care):
+- Regimes: physical sputtering (Ar, high ion energy, low selectivity, faceting); chemical etch (high pressure, isotropic); ion-assisted etch (anisotropic, ions break bonds and clear passivation on floors). ICP source power sets plasma density and radical flux; RF bias sets ion energy; pressure sets mean free path, ion angle spread and loading; temperature sets byproduct volatility and passivation.
+- Si: SF6/O2 (fluorine, fast, isotropic tendency); Cl2 or HBr (anisotropic, poly-Si gates, good selectivity to oxide); Bosch DRIE alternates SF6 etch and C4F8 passivation (scallops, notching at stop layers, tune step times); cryogenic SF6/O2 at about -100 °C uses frozen SiOxFy passivation for smooth walls (sensitive to temperature, leaks and mask).
+- SiO2 and SiN: fluorocarbons (CF4, CHF3, C4F8, CH2F2, CH3F) with Ar or O2; polymer thickness controls selectivity to Si and resist; more carbon-rich gives selectivity but can cause etch stop; SiN over SiO2 uses hydrofluorocarbons.
+- III-V: InP and InGaAs by Cl2/Ar or Cl2/N2 ICP, often heated (low InClx volatility) for smooth vertical walls; CH4/H2/Ar is an alternative (polymer deposition, hydrocarbon grass); GaAs and AlGaAs with BCl3/Cl2/Ar; GaN with Cl2/BCl3/Ar; moisture-sensitive surfaces (Al-containing) oxidize after etch; sidewall roughness matters for photonic loss.
+- Metals: Al with Cl2/BCl3; Ti and TiN with Cl2 or fluorine; W with SF6; Cr with Cl2/O2; Au, Pt, Cu have non-volatile halides so use ion-beam milling, lift-off or damascene; Ni and Cr are common hard masks.
+- Polymers and resists: O2 plasma, O2/N2 or H2/N2 ashing; resist hardens under ion bombardment and can be hard to strip.
+- Other: SiC with SF6/O2; diamond with O2; LiNbO3 mostly Ar milling or fluorine chemistry with LiF redeposition; SiN waveguides with CHF3 or CF4/O2; quartz with fluorocarbons.
+- Advanced: atomic layer etch (surface modification then low-energy ion removal, self-limiting, synergy check, low damage); pulsed plasma (lower charging, notch control); high aspect ratio etch (ARDE, bowing, twisting, charging); ion-beam etch and CAIBE (angled, non-volatile materials, redeposition); vapor HF and XeF2 (isotropic release etch); KOH and TMAH (crystallographic anisotropy, (100) walls at 54.7°); metal-assisted chemical etch (high aspect Si nanostructures).
+- Masks: choose thickness from selectivity and etch depth with margin; resist for shallow etches, SiO2 or SiN or metal for deep or chlorine/fluorine-heavy etches; EBL resists (ZEP, HSQ) have their own selectivity; mask faceting causes tapered tops.
+- Defects: undercut, bowing, taper, RIE lag, micromasking and grass, notching, trenching, redeposition fences, striations, mask erosion, plasma damage, etch stop (polymer), loading effects, non-uniformity.
+- Monitoring: OES endpoint, laser interferometry, DC bias, reflected power and match positions, He backside pressure, chamber seasoning, etch-rate monitor wafers, CD-SEM and cross-section SEM, SPC with Cpk and Western Electric rules.
+- Safety: Cl2, BCl3 and HBr corrosive/toxic; HF contact is severe; SF6, CF4, C4F8 and CHF3 are potent greenhouse gases; CH4 and H2 flammable; handle byproduct deposits and cleaning waste per facility rules.`;
+const log=document.getElementById("log"),q=document.getElementById("q"),hint=document.getElementById("hint"),status=document.getElementById("status"),send=document.getElementById("send"),stop=document.getElementById("stop"),imgIn=document.getElementById("img"),row=document.getElementById("attachrow"),thumb=document.getElementById("imgthumb"),imgName=document.getElementById("imgname"),imgClear=document.getElementById("imgclear");
+let mode="recipe",turns=[],ctl=null,sample=null,pendImg=null,imgUrl=null,cleared=false;const HINT=imgName.textContent;
+const COPY={rate_limited:"Too many questions at once. Wait a minute and ask again.",session_expired:"Sign in to Claude again, then ask.",refused:"Claude declined that question. Try rephrasing it.",empty_completion:"No answer came back. Try a shorter question.",prompt_too_large:"That is too much text. Start a new topic or shorten the question."};
+function setMode(m){mode=m;document.querySelectorAll(".mode").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m));hint.textContent=MODES[m].hint;q.placeholder=MODES[m].ph}
+const mw=document.getElementById("modes");for(const k in MODES){const b=document.createElement("button");b.className="mode";b.dataset.mode=k;b.type="button";b.textContent=MODES[k].label;b.onclick=()=>setMode(k);mw.append(b)}
+setMode("recipe");
+const tb=document.getElementById("defects");
+for(const [s,c,k] of DEFECTS){const tr=document.createElement("tr");[s,c,k].forEach(t=>{const td=document.createElement("td");td.textContent=t;tr.append(td)});
+const td=document.createElement("td"),b=document.createElement("button");b.className="ask";b.type="button";b.textContent="Ask";
+b.onclick=()=>{setMode("trouble");q.value="I see this etch problem: "+s.toLowerCase()+". Material, tool and recipe: ";q.focus();q.scrollIntoView({behavior:"smooth",block:"center"})};td.append(b);tr.append(td);tb.append(tr)}
+const cv=document.getElementById("cover");for(const [t,d] of COVER){const e=document.createElement("details"),s=document.createElement("summary"),p=document.createElement("p");s.textContent=t;p.textContent=d;e.append(s,p);cv.append(e)}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function inl(s){return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")}
+function md(src){let h="",l=null;const c=()=>{if(l){h+="</"+l+">";l=null}};
+for(const raw of src.split("\n")){const t=raw.trimEnd();let m;
+if(m=t.match(/^#{1,6}\s+(.*)/)){c();h+="<h4>"+inl(m[1])+"</h4>"}
+else if(m=t.match(/^\s*[-*•]\s+(.*)/)){if(l!=="ul"){c();h+="<ul>";l="ul"}h+="<li>"+inl(m[1])+"</li>"}
+else if(m=t.match(/^\s*\d+[.)]\s+(.*)/)){if(l!=="ol"){c();h+="<ol>";l="ol"}h+="<li>"+inl(m[1])+"</li>"}
+else if(!t.trim())c();else{c();h+="<p>"+inl(t)+"</p>"}}c();return h}
+function addUser(t,src){const d=document.createElement("div");d.className="msg user";d.textContent=t;if(src){const i=document.createElement("img");i.src=src;i.alt="Attached image";d.append(i)}log.append(d);log.scrollTop=log.scrollHeight}
+function addBot(){const d=document.createElement("div");d.className="msg bot";d.innerHTML='<div class="body"><p class="note">Thinking…</p></div>';log.append(d);log.scrollTop=log.scrollHeight;return d.querySelector(".body")}
+function setImg(f){if(imgUrl){URL.revokeObjectURL(imgUrl);imgUrl=null}pendImg=f||null;
+if(f){imgUrl=URL.createObjectURL(f);thumb.src=imgUrl;thumb.hidden=false;imgName.textContent=(f.name||"Pasted image")+" attached";imgClear.hidden=false}
+else{thumb.hidden=true;thumb.removeAttribute("src");imgName.textContent=HINT;imgClear.hidden=true;imgIn.value=""}}
+imgIn.onchange=()=>setImg(imgIn.files[0]);imgClear.onclick=()=>setImg(null);
+q.addEventListener("paste",e=>{if(row.hidden)return;const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith("image/"));if(it){const f=it.getAsFile();if(f){e.preventDefault();setImg(f)}}});
+function disable(){document.getElementById("unavail").hidden=false;send.disabled=true;q.disabled=true}
+(async()=>{sample=await claude.use("sample").catch(()=>null);if(!sample){disable();return}
+const caps=await sample.limits?.().catch(()=>null);if(caps?.images){row.hidden=false;imgIn.accept=caps.images.mediaTypes.join(",")}})();
+document.getElementById("form").addEventListener("submit",async e=>{e.preventDefault();
+const img=pendImg,text=q.value.trim()||(img?"Please read this image and tell me what it shows about my etch.":"");if(!text||!sample)return;
+if(!cleared){log.innerHTML="";cleared=true}
+addUser(text,img?imgUrl:null);q.value="";
+if(img){pendImg=null;imgUrl=null;thumb.hidden=true;thumb.removeAttribute("src");imgName.textContent=HINT;imgClear.hidden=true;imgIn.value=""}
+turns.push({role:"user",content:"[Mode: "+mode+"] "+MODES[mode].task+"\n\nUser: "+text+(img?"\n\n[An image is attached. Read it as described in the image rule.]":"")});
+while(turns.length>12)turns.splice(0,2);
+const body=addBot();ctl=new AbortController();send.disabled=true;stop.hidden=false;status.textContent="";
+try{const r=await sample([{role:"user",content:RULES},...turns],{cache:false,signal:ctl.signal,...(img?{images:[img]}:{}),onText:({text})=>{body.innerHTML=md(text);log.scrollTop=log.scrollHeight}});
+turns.push({role:"assistant",content:r.text});if(r.truncated)status.textContent="Answer was cut short. Ask for one part at a time."}
+catch(err){turns.pop();if(err.text)body.innerHTML=md(err.text);else body.innerHTML="";
+if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(err.code)){body.closest(".msg").remove();disable()}
+else if(err.code==="images_unavailable"){row.hidden=true;status.textContent="Image upload is not available here. Type the key values instead."}
+else if(err.code==="image_rejected")status.textContent="That image could not be read. Use a PNG or JPG under 20 MB.";
+else if(err.code!=="cancelled")status.textContent=COPY[err.code]||"Connection problem. Ask again.";
+if(!body.innerHTML)body.closest(".msg")?.remove()}
+finally{send.disabled=!sample||q.disabled;stop.hidden=true;ctl=null}});
+stop.onclick=()=>ctl?.abort();
+document.getElementById("clear").onclick=()=>{ctl?.abort();turns=[];cleared=true;log.innerHTML="";status.textContent="New topic started."};
+q.addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){e.preventDefault();document.getElementById("form").requestSubmit()}});
+</script></body></html>
